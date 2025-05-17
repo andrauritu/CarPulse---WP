@@ -67,4 +67,16 @@ public class UserService {
         }
         userRepository.deleteById(userId);
     }
+
+    public User save(User user) {
+        // Check if the user already exists
+        if (user.getId() != null && userRepository.existsById(user.getId())) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "User already exists: " + user.getId());
+        }
+
+        // Hash the password before saving
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
 }

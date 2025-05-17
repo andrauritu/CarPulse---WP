@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +20,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements UserDetails {
-
 
 
     public Long getId() {
@@ -54,6 +54,11 @@ public class User implements UserDetails {
         this.family = family;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -63,6 +68,10 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private String password;
+
+    @Getter
+    @Column(nullable = false, unique = true)
+    private String email;
 
     // EAGER so authorities are available at login time
     @ElementCollection(fetch = FetchType.EAGER)
