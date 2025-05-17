@@ -13,6 +13,7 @@ export default function AddCar() {
         imageUrl: '/assets/car1_vols.png' // Default image
     });
     const [error, setError] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = e => {
@@ -23,14 +24,22 @@ export default function AddCar() {
     const handleSubmit = e => {
         e.preventDefault();
         setError(null);
+        setIsSubmitting(true);
         
         if (!user) {
             setError('You must be logged in to add a car.');
+            setIsSubmitting(false);
             return;
         }
         
         const familyId = user.familyId;
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('basicAuth');
+        
+        if (!token) {
+            setError('Authentication token not found. Please log in again.');
+            setIsSubmitting(false);
+            return;
+        }
         
         // Convert mileage and year to numbers
         const carData = {
@@ -43,16 +52,24 @@ export default function AddCar() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                ...(token && { 'Authorization': `Bearer ${token}` }),
+                'Authorization': `Basic ${token}`
             },
+            credentials: 'include',
             body: JSON.stringify(carData),
         })
             .then(res => {
-                if (!res.ok) throw new Error();
+                if (!res.ok) {
+                    const errorMsg = res.headers.get('X-Error-Message');
+                    throw new Error(errorMsg || `HTTP error: ${res.status}`);
+                }
                 return res.json();
             })
             .then(() => navigate('/cars'))
-            .catch(() => setError('Failed to add car.'));
+            .catch((err) => {
+                console.error('Failed to add car:', err);
+                setError(`Failed to add car: ${err.message}`);
+            })
+            .finally(() => setIsSubmitting(false));
     };
 
     const availableImages = [
@@ -158,9 +175,12 @@ export default function AddCar() {
                 <div className="form-group mt-4">
                     <button 
                         type="submit" 
-                        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded"
+                        className={`w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded ${
+                            isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                        }`}
+                        disabled={isSubmitting}
                     >
-                        Add Car
+                        {isSubmitting ? 'Adding Car...' : 'Add Car'}
                     </button>
                 </div>
             </form>

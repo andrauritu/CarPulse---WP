@@ -10,12 +10,13 @@ export default function CarDetails() {
     const [form, setForm] = useState({ make: '', model: '', licensePlate: '', mileage: '' });
 
     useEffect(() => {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('basicAuth');
         fetch(`/admin/cars/${carId}`, {
             headers: {
                 'Content-Type': 'application/json',
-                ...(token && { 'Authorization': `Bearer ${token}` }),
+                ...(token && { 'Authorization': `Basic ${token}` }),
             },
+            credentials: 'include'
         })
             .then(res => {
                 if (!res.ok) throw new Error('Failed to fetch car');
@@ -41,13 +42,14 @@ export default function CarDetails() {
 
     const handleSave = () => {
         setLoading(true);
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('basicAuth');
         fetch(`/admin/cars/${carId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                ...(token && { 'Authorization': `Bearer ${token}` }),
+                ...(token && { 'Authorization': `Basic ${token}` }),
             },
+            credentials: 'include',
             body: JSON.stringify(form),
         })
             .then(res => {
