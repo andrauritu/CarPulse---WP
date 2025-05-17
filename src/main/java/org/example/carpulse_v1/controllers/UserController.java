@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/users")
-
+@RequestMapping("/admin")
 public class UserController {
 
     private final UserService userService;
@@ -20,18 +19,23 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping
-    public List<User> list(@RequestParam Long familyId) {
+    @GetMapping("/users")
+    public List<User> listByQueryParam(@RequestParam Long familyId) {
+        return userService.listByFamily(familyId);
+    }
+    
+    @GetMapping("/families/{familyId}/users")
+    public List<User> listByFamily(@PathVariable Long familyId) {
         return userService.listByFamily(familyId);
     }
 
-    @PostMapping
+    @PostMapping("/users")
     public User invite(@RequestParam Long familyId,
                        @RequestBody User newUser) {
         return userService.createUser(familyId, newUser);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();

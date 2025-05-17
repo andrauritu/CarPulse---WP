@@ -32,6 +32,19 @@ public class UserService {
 
     }
     /**
+     * Check if a user exists with the given username
+     */
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+    
+    /**
+     * Check if a user exists with the given email
+     */
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+    /**
      * List all users in a given family.
      */
     public List<User> listByFamily(Long familyId) {
@@ -74,9 +87,8 @@ public class UserService {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT, "User already exists: " + user.getId());
         }
-
-        // Hash the password before saving
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        
+        // The password should already be encoded by the AuthController
         return userRepository.save(user);
     }
 }

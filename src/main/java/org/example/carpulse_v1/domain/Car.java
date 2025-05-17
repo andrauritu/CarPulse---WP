@@ -15,6 +15,10 @@ public class Car {
     @ManyToOne
     @JoinColumn(name = "family_id", nullable = false)
     private Family family;
+    
+    @ManyToOne
+    @JoinColumn(name = "assigned_user_id")
+    private User assignedUser;
 
     @Column(nullable = false, unique = true)
     private String licensePlate;
@@ -48,6 +52,14 @@ public class Car {
 
     public void setFamily(Family family) {
         this.family = family;
+    }
+    
+    public User getAssignedUser() {
+        return assignedUser;
+    }
+
+    public void setAssignedUser(User assignedUser) {
+        this.assignedUser = assignedUser;
     }
 
     public String getLicensePlate() {
