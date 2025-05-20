@@ -88,6 +88,9 @@ public class CarService {
         car.setYear(details.getYear());
         car.setMileage(details.getMileage());
         car.setImageUrl(details.getImageUrl());
+        car.setEngine(details.getEngine());
+        car.setDoors(details.getDoors());
+        car.setFuelType(details.getFuelType());
         
         // Don't update the assignment here as it's handled by assignToUser method
         

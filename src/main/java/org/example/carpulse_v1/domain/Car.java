@@ -27,7 +27,14 @@ public class Car {
     private String model;
     private Integer year;
     private Integer mileage;
+    
+    @Column(columnDefinition = "LONGTEXT")
     private String imageUrl;
+    
+    // New fields for enhanced car details
+    private String engine;
+    private Integer doors;
+    private String fuelType;
 
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL)
     private List<MaintenanceRecord> maintenanceRecords;
@@ -108,6 +115,30 @@ public class Car {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+    
+    public String getEngine() {
+        return engine;
+    }
+
+    public void setEngine(String engine) {
+        this.engine = engine;
+    }
+
+    public Integer getDoors() {
+        return doors;
+    }
+
+    public void setDoors(Integer doors) {
+        this.doors = doors;
+    }
+
+    public String getFuelType() {
+        return fuelType;
+    }
+
+    public void setFuelType(String fuelType) {
+        this.fuelType = fuelType;
     }
 
     public List<MaintenanceRecord> getMaintenanceRecords() {

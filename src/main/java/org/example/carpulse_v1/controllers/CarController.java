@@ -7,8 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Base64;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
@@ -153,7 +155,32 @@ public class CarController {
         }
     }
 
-    // stub for image upload if you add it later
-    // @PostMapping("/{id}/image")
-    // public ResponseEntity<?> uploadImage(@PathVariable Long id, @RequestParam MultipartFile file) { … }
+    @PostMapping("/cars/{id}/image")
+    public ResponseEntity<Car> uploadImage(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        try {
+            logger.info("Uploading image for car ID: {}", id);
+            
+            if (file.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File is empty");
+            }
+            
+            // Get the car entity
+            Car car = carService.findById(id);
+            
+            // Convert image to Base64 string
+            byte[] imageBytes = file.getBytes();
+            String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+            String imageUrl = "data:" + file.getContentType() + ";base64," + base64Image;
+            
+            // Update car with image URL
+            car.setImageUrl(imageUrl);
+            Car updated = carService.update(id, car);
+            
+            logger.info("Image uploaded successfully for car ID: {}", id);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            logger.error("Error uploading image for car ID: {}", id, e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error uploading image: " + e.getMessage(), e);
+        }
+    }
 }
