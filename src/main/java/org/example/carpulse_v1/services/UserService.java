@@ -32,6 +32,19 @@ public class UserService {
 
     }
     /**
+     * Check if a user exists with the given username
+     */
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+    
+    /**
+     * Check if a user exists with the given email
+     */
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+    /**
      * List all users in a given family.
      */
     public List<User> listByFamily(Long familyId) {
@@ -41,42 +54,96 @@ public class UserService {
                         HttpStatus.NOT_FOUND, "Family not found: " + familyId));
         return userRepository.findByFamilyId(familyId);
     }
-
+    
     /**
-     * Invite / create a new USER in the given family.
-     * Sets ROLE_USER, hashes password, and ties to Family.
+     * Find a user by their ID
      */
-    public User createUser(Long familyId, User incoming) {
-        Family fam = familyRepository.findById(familyId)
+    public User findById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "User not found: " + id));
+    }
+    
+    /**
+     * Create a new user in the given family
+     */
+    public User createUser(Long familyId, User newUser) {
+        // Check if family exists
+        Family family = familyRepository.findById(familyId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Family not found: " + familyId));
-
-        incoming.setFamily(fam);
-        incoming.setPassword(passwordEncoder.encode(incoming.getPassword()));
-        incoming.setRoles(List.of(Role.ROLE_USER));
-        return userRepository.save(incoming);
+        
+        // Check if username or email already exist
+        if (userRepository.existsByUsername(newUser.getUsername())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Username already exists: " + newUser.getUsername());
+        }
+        
+        if (userRepository.existsByEmail(newUser.getEmail())) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Email already exists: " + newUser.getEmail());
+        }
+        
+        // Encode password and set family
+        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+        newUser.setFamily(family);
+        
+        return userRepository.save(newUser);
     }
-
+    
     /**
-     * Delete a user by their ID.
+     * Update an existing user
      */
-    public void deleteUser(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "User not found: " + userId);
+    public User updateUser(Long id, User userUpdates) {
+        User existingUser = findById(id);
+        
+        // Update fields that are allowed to be changed
+        if (userUpdates.getUsername() != null && !userUpdates.getUsername().equals(existingUser.getUsername())) {
+            // Check if new username is already taken
+            if (userRepository.existsByUsername(userUpdates.getUsername())) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "Username already exists: " + userUpdates.getUsername());
+            }
+            existingUser.setUsername(userUpdates.getUsername());
         }
-        userRepository.deleteById(userId);
+        
+        if (userUpdates.getEmail() != null && !userUpdates.getEmail().equals(existingUser.getEmail())) {
+            // Check if new email is already taken
+            if (userRepository.existsByEmail(userUpdates.getEmail())) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "Email already exists: " + userUpdates.getEmail());
+            }
+            existingUser.setEmail(userUpdates.getEmail());
+        }
+        
+        // Update password if provided
+        if (userUpdates.getPassword() != null && !userUpdates.getPassword().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(userUpdates.getPassword()));
+        }
+        
+        // Update name if provided
+        if (userUpdates.getName() != null) {
+            existingUser.setName(userUpdates.getName());
+        }
+        
+        return userRepository.save(existingUser);
     }
-
-    public User save(User user) {
-        // Check if the user already exists
-        if (user.getId() != null && userRepository.existsById(user.getId())) {
+    
+    /**
+     * Delete a user
+     */
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
             throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "User already exists: " + user.getId());
+                    HttpStatus.NOT_FOUND, "User not found: " + id);
         }
-
-        // Hash the password before saving
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.deleteById(id);
+    }
+    
+    /**
+     * Save a user
+     */
+    public User save(User user) {
         return userRepository.save(user);
     }
 }

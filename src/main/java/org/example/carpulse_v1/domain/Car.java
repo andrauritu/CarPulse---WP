@@ -15,6 +15,10 @@ public class Car {
     @ManyToOne
     @JoinColumn(name = "family_id", nullable = false)
     private Family family;
+    
+    @ManyToOne
+    @JoinColumn(name = "assigned_user_id")
+    private User assignedUser;
 
     @Column(nullable = false, unique = true)
     private String licensePlate;
@@ -23,7 +27,14 @@ public class Car {
     private String model;
     private Integer year;
     private Integer mileage;
+    
+    @Column(columnDefinition = "LONGTEXT")
     private String imageUrl;
+    
+    // New fields for enhanced car details
+    private String engine;
+    private Integer doors;
+    private String fuelType;
 
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL)
     private List<MaintenanceRecord> maintenanceRecords;
@@ -48,6 +59,14 @@ public class Car {
 
     public void setFamily(Family family) {
         this.family = family;
+    }
+    
+    public User getAssignedUser() {
+        return assignedUser;
+    }
+
+    public void setAssignedUser(User assignedUser) {
+        this.assignedUser = assignedUser;
     }
 
     public String getLicensePlate() {
@@ -96,6 +115,30 @@ public class Car {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+    
+    public String getEngine() {
+        return engine;
+    }
+
+    public void setEngine(String engine) {
+        this.engine = engine;
+    }
+
+    public Integer getDoors() {
+        return doors;
+    }
+
+    public void setDoors(Integer doors) {
+        this.doors = doors;
+    }
+
+    public String getFuelType() {
+        return fuelType;
+    }
+
+    public void setFuelType(String fuelType) {
+        this.fuelType = fuelType;
     }
 
     public List<MaintenanceRecord> getMaintenanceRecords() {

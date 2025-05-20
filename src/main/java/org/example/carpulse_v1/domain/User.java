@@ -53,6 +53,14 @@ public class User implements UserDetails {
     public void setFamily(Family family) {
         this.family = family;
     }
+    
+    public List<Car> getAssignedCars() {
+        return assignedCars;
+    }
+
+    public void setAssignedCars(List<Car> assignedCars) {
+        this.assignedCars = assignedCars;
+    }
 
     public void setEmail(String email) {
         this.email = email;
@@ -64,7 +72,7 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String username;      // your “login name”
+    private String username;      // your "login name"
 
     @Column(nullable = false)
     private String password;
@@ -87,6 +95,11 @@ public class User implements UserDetails {
     @JoinColumn(name = "family_id")
     @JsonIgnore    // never serialize this field
     private Family family;
+    
+    @OneToMany(mappedBy = "assignedUser", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Car> assignedCars = new ArrayList<>();
+    
     // --- UserDetails methods ---
 
     @Override

@@ -8,6 +8,7 @@ import CarsList from './pages/CarsList';
 import CarDetails from './pages/CarDetails';
 import Alerts from './pages/Alerts';
 import Profile from './pages/Profile';
+import Team from './pages/Team';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 
@@ -27,6 +28,7 @@ export default function App() {
                         <Route path="/addcar" element={<AddCar />} />
                         <Route path="/alerts" element={<Alerts />} />
                         <Route path="/profile" element={<Profile />} />
+                        <Route path="/team" element={<Team />} />
                     </Route>
                     {/* Fallback */}
                     <Route path="*" element={<Navigate to="/" replace />} />
