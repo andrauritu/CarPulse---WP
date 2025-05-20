@@ -213,12 +213,31 @@ export default function CarsList() {
                                             </div>
                                         </div>
                                         
-                                        <Link 
-                                            to={`/cars/${car.id}`}
-                                            className="block w-full text-center bg-[#27272F] py-3 rounded-md hover:bg-[#32323A] transition"
-                                        >
-                                            Details
-                                        </Link>
+                                        <div className="flex gap-2 mb-4">
+                                            <Link 
+                                                to={`/cars/${car.id}`}
+                                                className="flex-1 text-center bg-[#27272F] py-3 rounded-md hover:bg-[#32323A] transition"
+                                            >
+                                                Details
+                                            </Link>
+                                            
+                                            {isAdmin && (
+                                                <button 
+                                                    onClick={() => openAssignModal(car)}
+                                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition flex items-center"
+                                                >
+                                                    <i className="fas fa-user-plus mr-2"></i>
+                                                    {car.assignedUser ? 'Reassign' : 'Assign'}
+                                                </button>
+                                            )}
+                                        </div>
+                                        
+                                        {car.assignedUser && (
+                                            <div className="text-sm text-gray-400">
+                                                <span>Assigned to: </span>
+                                                <span className="font-medium text-white">{car.assignedUser.username}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}

@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # MariaDB service
+  db:
+    image: mariadb:latest
+    container_name: carpulse-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: carpulse
+      MYSQL_USER: carpulse
+      MYSQL_PASSWORD: carpulse
+    ports:
+      - "3306:3306"
+    volumes:
+      - carpulse-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  # Spring Boot Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: carpulse-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/carpulse
+      SPRING_DATASOURCE_USERNAME: carpulse
+      SPRING_DATASOURCE_PASSWORD: carpulse
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: carpulse-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  carpulse-db-data: 

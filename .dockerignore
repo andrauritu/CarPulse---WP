@@ -1,0 +1,26 @@
+# Version control
+.git
+.gitignore
+
+# Build files
+target/
+
+# Node modules
+node_modules/
+frontend/node_modules/
+
+# IDE files
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Docker files
+docker-compose.yml
+Dockerfile*
+
+# Misc
+.DS_Store
+*.md
+LICENSE 

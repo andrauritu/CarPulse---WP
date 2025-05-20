@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -63,10 +64,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of("http://localhost:5173"));
-        cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
-        cfg.setAllowedHeaders(List.of("*"));
-        cfg.setExposedHeaders(List.of("X-Error-Message"));
+        cfg.setAllowedOrigins(Arrays.asList(
+            "http://localhost:5173",  // Dev frontend
+            "http://localhost:80",    // Docker frontend (localhost)
+            "http://localhost",       // Docker frontend (simplified)
+            "http://frontend",        // Docker service name
+            "http://frontend:80"      // Docker service with port
+        ));
+        cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        cfg.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        cfg.setExposedHeaders(Arrays.asList("X-Error-Message"));
         cfg.setAllowCredentials(true);
 
         var source = new UrlBasedCorsConfigurationSource();

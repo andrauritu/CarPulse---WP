@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # MariaDB service remains unchanged
+  db:
+    image: mariadb:latest
+    container_name: carpulse-db-dev
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: carpulse
+      MYSQL_USER: carpulse
+      MYSQL_PASSWORD: carpulse
+    ports:
+      - "3306:3306"
+    volumes:
+      - carpulse-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+  # Spring Boot Backend with development configuration
+  backend:
+    image: maven:3.8.5-openjdk-17
+    container_name: carpulse-backend-dev
+    working_dir: /app
+    command: mvn spring-boot:run -Dspring-boot.run.profiles=docker
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/carpulse
+      SPRING_DATASOURCE_USERNAME: carpulse
+      SPRING_DATASOURCE_PASSWORD: carpulse
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    volumes:
+      - ./:/app  # Mount entire project for live reload
+    ports:
+      - "8080:8080"
+      - "35729:35729"  # LiveReload port
+    
+  # React Frontend with development server
+  frontend:
+    image: node:18-alpine
+    container_name: carpulse-frontend-dev
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    restart: unless-stopped
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app  # Mount frontend code for live reload
+    ports:
+      - "5173:5173"  # Vite dev server port
+    environment:
+      - VITE_BACKEND_URL=http://localhost:8080
+
+volumes:
+  carpulse-db-data: 

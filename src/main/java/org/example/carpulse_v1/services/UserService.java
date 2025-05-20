@@ -121,11 +121,6 @@ public class UserService {
             existingUser.setPassword(passwordEncoder.encode(userUpdates.getPassword()));
         }
         
-        // Update name if provided
-        if (userUpdates.getName() != null) {
-            existingUser.setName(userUpdates.getName());
-        }
-        
         return userRepository.save(existingUser);
     }
     
